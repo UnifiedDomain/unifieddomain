@@ -13,13 +13,16 @@ services:
       - pgdata:/var/lib/postgresql/data
 
   krb5-kdc:
-    image: mitkrb5/mit-krb5-kdc:1.20
+    build:
+      context: ..
+      dockerfile: deploy/krb5-kdc.Dockerfile
     restart: unless-stopped
     environment:
-      REALM: UD.INTERNAL
-      KADMIN_PASS: adminpassword
+      KRB5_REALM: UD.INTERNAL
+      KRB5_ADMIN_PASSWORD: adminpassword
     ports:
       - "88:88/udp"
+      - "88:88"
       - "749:749"
     volumes:
       - krb5data:/var/lib/krb5kdc
