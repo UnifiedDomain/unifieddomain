@@ -1,0 +1,3 @@
+[auth]
+mtls_ca_cert_path = null
+mtls_ca_key_path = null
