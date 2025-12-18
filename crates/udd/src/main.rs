@@ -1222,7 +1222,19 @@ fn build_tls_config(cfg: &UnifiedDomainConfig) -> Result<(RustlsConfig, Option<A
     let builder = RustlsServerConfig::builder_with_provider(provider.into())
         .with_protocol_versions(&[&version::TLS13, &version::TLS12])?;
 
-    let (client_auth, device_ca) = match (&cfg.auth.mtls_ca_cert_path, &cfg.auth.mtls_ca_key_path) {
+    // Treat empty strings as unset so mTLS can be disabled via env/config overrides.
+    let ca_cert_path = cfg
+        .auth
+        .mtls_ca_cert_path
+        .as_deref()
+        .filter(|s| !s.is_empty());
+    let ca_key_path = cfg
+        .auth
+        .mtls_ca_key_path
+        .as_deref()
+        .filter(|s| !s.is_empty());
+
+    let (client_auth, device_ca) = match (ca_cert_path, ca_key_path) {
         (Some(ca_cert_path), Some(ca_key_path)) => {
             let ca = Arc::new(load_device_ca(ca_cert_path, ca_key_path)?);
             let mut roots = RootCertStore::empty();
